@@ -58,37 +58,18 @@ impl UserRepository {
     }
 }
 
-// Converters
-// To convert database representations to domain models and vice versa
+pub fn new_user_payload_to_new_user_db(payload: NewUser, password_hash: String) -> NewUserDb {
+    NewUserDb {
+        email: payload.email,
+        username: payload.username,
+        password_hash,
+    }
+}
 
 // DB -> Model
 fn convert_user_db_to_user(user_db: UserDb) -> User {
     User {
         id: user_db.id,
         username: user_db.username,
-    }
-}
-
-// fn convert_new_user_db_to_new_user(new_user_db: NewUserDb) -> NewUser {
-//     NewUser {
-//         email: new_user_db.email,
-//         username: new_user_db.username,
-//         password: new_user_db.password_hash,
-//     }
-// }
-
-// Model -> DB
-pub fn convert_user_to_user_db(user: User) -> UserDb {
-    UserDb {
-        id: user.id,
-        username: user.username,
-    }
-}
-
-pub fn convert_new_user_to_new_user_db(new_user: NewUser) -> NewUserDb {
-    NewUserDb {
-        email: new_user.email,
-        username: new_user.username,
-        password_hash: new_user.password,
     }
 }

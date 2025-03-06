@@ -57,7 +57,7 @@ impl IsInfraError for deadpool_diesel::InteractError {
     }
 }
 
-// Implement From<InfraError> for AppError
+// Implement From<InfraError> for AppError to be able to use into()
 impl From<InfraError> for AppError {
     fn from(err: InfraError) -> Self {
         match err {

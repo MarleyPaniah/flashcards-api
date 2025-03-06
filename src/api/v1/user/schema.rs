@@ -9,5 +9,5 @@ diesel::table! {
         last_login_at -> Timestamp,
         is_verified -> Bool,
         is_deleted -> Bool,
-        }
+    }
 }

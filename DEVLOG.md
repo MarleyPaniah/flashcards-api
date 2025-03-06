@@ -30,3 +30,7 @@ https://medium.com/@qkpiot/building-a-robust-rust-backend-with-axum-diesel-postg
 
 # 2025-03-{01, 02} - Error handling
 * Trying to add an user to the database results in a panic, which hasn't isn't sent to the client
+
+# 2025-03-05 - Fixing user registration
+- Fixed, needed some default values
+- User insertion works
