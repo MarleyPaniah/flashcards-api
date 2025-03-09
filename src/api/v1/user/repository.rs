@@ -5,7 +5,14 @@ use super::{
     db_models::{NewUserDb, UserDb},
     models::{NewUser, User},
     schema::users,
+    schema::users::dsl as users_dsl,
 };
+
+// Enum used to filter the SELECT with in the DB.
+pub enum UserField {
+    Username,
+    Email,
+}
 
 pub struct UserRepository;
 
@@ -34,21 +41,26 @@ impl UserRepository {
         Ok(convert_user_db_to_user(res))
     }
 
-    pub async fn select_user_from_username(
+    pub async fn select_user(
         pool: &deadpool_diesel::postgres::Pool,
-        username: &str,
+        value: &str,
+        field: UserField,
     ) -> Result<User, InfraError> {
-        // Select an user from the user tables using its ID.
-
         let conn = pool.get().await.map_err(adapt_infra_error)?;
-        let match_name = String::from(username);
+        let match_value = String::from(value);
 
+        // DevNote: Tried to use box statement, but it felt too complex for this small task.
         let res: UserDb = conn
             .interact(move |conn| {
-                users::table
-                    .filter(users::username.eq(match_name))
-                    .select(UserDb::as_select())
-                    .get_result(conn)
+                use users_dsl::*;
+                let mut query = users.into_boxed();
+
+                query = match field {
+                    UserField::Username => query.filter(username.eq(match_value)),
+                    UserField::Email => query.filter(email.eq(match_value)),
+                };
+
+                query.select(UserDb::as_select()).get_result(conn)
             })
             .await
             .map_err(adapt_infra_error)?

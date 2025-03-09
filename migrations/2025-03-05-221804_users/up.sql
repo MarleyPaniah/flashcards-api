@@ -1,9 +1,9 @@
 -- Your SQL goes here
 CREATE TABLE "users"(
 	"id" UUID NOT NULL DEFAULT gen_random_uuid(),
-	"username" VARCHAR NOT NULL,
+	"username" VARCHAR NOT NULL UNIQUE,
 	"password_hash" VARCHAR NOT NULL,
-	"email" VARCHAR NOT NULL,
+	"email" VARCHAR NOT NULL UNIQUE,
 	"created_at" TIMESTAMP NOT NULL DEFAULT now(),
 	"updated_at" TIMESTAMP NOT NULL DEFAULT now(),
 	"last_login_at" TIMESTAMP NOT NULL DEFAULT now(),

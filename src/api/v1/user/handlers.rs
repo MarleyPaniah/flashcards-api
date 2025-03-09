@@ -3,13 +3,13 @@ use axum::{http::StatusCode, response::IntoResponse, Json};
 
 use crate::api::v1::api::state::AppState;
 
-use super::repository::UserRepository;
+use super::repository::{UserField, UserRepository};
 
 pub async fn get_user(
     State(state): State<AppState>,
     Path(username): Path<String>,
 ) -> impl IntoResponse {
-    let user = UserRepository::select_user_from_username(&state.pool, &username)
+    let user = UserRepository::select_user(&state.pool, &username, UserField::Username)
         .await
         .unwrap();
 

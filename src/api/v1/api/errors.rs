@@ -17,6 +17,8 @@ pub enum AppError {
     InvalidInputJson(JsonRejection),
     ValidationError(String),
     InfrastructureError(InfraError),
+    UserExists(String),
+    UnknownError(String),
 }
 
 impl AppError {
@@ -24,16 +26,9 @@ impl AppError {
         match self {
             // TODO: Expand and document
             AppError::Unauthorized => (1001, StatusCode::UNAUTHORIZED, "Unauthorized.".to_string()),
-            AppError::InvalidInputJson(_) => (
-                1002,
-                StatusCode::BAD_REQUEST,
-                "Invalid JSON input.".to_string(),
-            ),
-            AppError::ValidationError(_) => (
-                1003,
-                StatusCode::BAD_REQUEST,
-                "TODO-ValidationError".to_string(),
-            ),
+            AppError::InvalidInputJson(err) => (1002, StatusCode::BAD_REQUEST, err.to_string()),
+            AppError::ValidationError(err) => (1003, StatusCode::BAD_REQUEST, err.to_string()),
+            AppError::UserExists(err) => (1004, StatusCode::CONFLICT, err.to_string()),
             AppError::InfrastructureError(infra_error) => match infra_error {
                 // TODO make infra_error implement status_code to avoid repeating it?
                 &InfraError::InternalServerError => (
@@ -47,6 +42,11 @@ impl AppError {
                     infra_error.to_string(),
                 ),
             },
+            AppError::UnknownError(err) => (
+                1000,
+                StatusCode::INTERNAL_SERVER_ERROR,
+                format!("An unknown error occured: {}", err),
+            ),
         }
     }
 }
