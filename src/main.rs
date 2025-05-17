@@ -24,9 +24,6 @@ async fn main() {
     // Create an instance of the application state
     let state = AppState { pool };
 
-    // Run migrations
-    // TODO
-
     // Build the app router
     let app = api_router().with_state(state);
     let server_address = format!("{}:{}", host, port);

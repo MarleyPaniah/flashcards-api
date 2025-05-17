@@ -16,9 +16,9 @@ impl fmt::Display for InfraError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
             // Display "Not found" for NotFound variant
-            InfraError::NotFound => write!(f, "Not found"),
+            InfraError::NotFound => write!(f, "InfraError: Not found"),
             // Display "Internal server error" for InternalServerError variant
-            InfraError::InternalServerError => write!(f, "Internal server error"),
+            InfraError::InternalServerError => write!(f, "InfraError: Internal server error"),
         }
     }
 }

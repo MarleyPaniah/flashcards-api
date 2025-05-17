@@ -18,6 +18,7 @@ pub enum AppError {
     ValidationError(String),
     InfrastructureError(InfraError),
     UserExists(String),
+    UserDoesNotExist(String),
     UnknownError(String),
 }
 
@@ -29,6 +30,7 @@ impl AppError {
             AppError::InvalidInputJson(err) => (1002, StatusCode::BAD_REQUEST, err.to_string()),
             AppError::ValidationError(err) => (1003, StatusCode::BAD_REQUEST, err.to_string()),
             AppError::UserExists(err) => (1004, StatusCode::CONFLICT, err.to_string()),
+            AppError::UserDoesNotExist(err) => (1005, StatusCode::NOT_FOUND, err.to_string()),
             AppError::InfrastructureError(infra_error) => match infra_error {
                 // TODO make infra_error implement status_code to avoid repeating it?
                 &InfraError::InternalServerError => (

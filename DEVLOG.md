@@ -34,3 +34,6 @@ https://medium.com/@qkpiot/building-a-robust-rust-backend-with-axum-diesel-postg
 # 2025-03-05 - Fixing user registration
 - Fixed, needed some default values
 - User insertion works
+
+# 2025-05-17 - fixing user routes & start work on decks
+- Fixed get user that does not exist, and return result for user that do exist
