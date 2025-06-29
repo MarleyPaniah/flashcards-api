@@ -29,7 +29,7 @@ https://medium.com/@qkpiot/building-a-robust-rust-backend-with-axum-diesel-postg
 * workout the user datamodel + database schema + auth and authorizations
 
 # 2025-03-{01, 02} - Error handling
-* Trying to add an user to the database results in a panic, which hasn't isn't sent to the client
+* Trying to add an user to the database results in a panic, which isn't sent to the client
 
 # 2025-03-05 - Fixing user registration
 - Fixed, needed some default values
@@ -37,3 +37,27 @@ https://medium.com/@qkpiot/building-a-robust-rust-backend-with-axum-diesel-postg
 
 # 2025-05-17 - fixing user routes & start work on decks
 - Fixed get user that does not exist, and return result for user that do exist
+
+# 2025-05-21 - turbofish, from-into and decks
+- rewrote some conversion functions into "into/from" impl
+
+# 2025-05-(23-24) - diesel schemas
+
+# 2025-06-01 - Cont'd
+- Using nanoid to generate short_ids for the decks.
+- wrote short_id generation RESTful extra service
+
+# 2025-06-21 - plugging in the short_id generator service
+- plugged with reqwest the short generator id external service
+
+# 2025-06-28 - writing the deck repository
+- considerations of soft deletes and cascading
+- what happens when restoring a card position-wise
+- auditability wiuth audit/history tables
+- factorizing access to the database
+
+# 2025-06-29 - Fixing decks
+- Factorized code
+- Created models, service and repository
+- fetch sid from service now works
+- Can now create a deck

@@ -1,7 +1,5 @@
 use std::fmt;
 
-use crate::api::v1::api::errors::AppError;
-
 use super::error_utils::log_and_convert;
 
 // Define a custom error type for infrastructure-related errors
@@ -9,6 +7,7 @@ use super::error_utils::log_and_convert;
 pub enum InfraError {
     InternalServerError, // Represents an internal server error
     NotFound,            // Represents a resource not found error
+    InvalidData(String), // Represents invalid data that found its way in the db
 }
 
 // Implement the Display trait to customize how InfraError is displayed
@@ -19,6 +18,7 @@ impl fmt::Display for InfraError {
             InfraError::NotFound => write!(f, "InfraError: Not found"),
             // Display "Internal server error" for InternalServerError variant
             InfraError::InternalServerError => write!(f, "InfraError: Internal server error"),
+            InfraError::InvalidData(err) => write!(f, "InfraError: Invalid data: {err}"),
         }
     }
 }
@@ -54,14 +54,5 @@ impl IsInfraError for deadpool_diesel::InteractError {
     fn as_infra_error(&self) -> InfraError {
         // Map all InteractError instances to InfraError::InternalServerError
         log_and_convert(self, InfraError::InternalServerError)
-    }
-}
-
-// Implement From<InfraError> for AppError to be able to use into()
-impl From<InfraError> for AppError {
-    fn from(err: InfraError) -> Self {
-        match err {
-            _ => AppError::InfrastructureError(err),
-        }
     }
 }

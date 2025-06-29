@@ -1,17 +1,26 @@
 use deadpool_diesel::postgres::{Manager, Pool};
-// use diesel_migrations::{embed_migrations, EmbeddedMigrations, MigrationHarness};
+use diesel::{result::Error as DieselError, PgConnection};
+
+use super::error_utils::adapt_infra_error;
+use super::errors::InfraError;
 
 pub fn get_postgresql_connection_pool(database_url: &String) -> Pool {
     let manager = Manager::new(database_url, deadpool_diesel::Runtime::Tokio1);
     Pool::builder(manager).build().unwrap()
 }
 
-// fn run_migrations(
-//     connection: &mut impl MigrationHarness<DB>,
-//     migrations
-// ) -> Result<(), Box<dyn Error + Send + Sync + 'static>> {
-//     // This will run the necessary migrations.
-//     connection.run_pending_migrations(MIGRATIONS)?;
-
-//     Ok(())
-// }
+/// Interact with the database.
+///
+/// Wrapper and helper function which reduces boilerplate
+/// to interact with the deadpool_diesel pool.
+pub async fn database_interact<T, F>(pool: &Pool, operation: F) -> Result<T, InfraError>
+where
+    F: FnOnce(&mut PgConnection) -> Result<T, DieselError> + Send + 'static,
+    T: Send + 'static,
+{
+    let conn = pool.get().await.map_err(adapt_infra_error)?;
+    conn.interact(operation)
+        .await
+        .map_err(adapt_infra_error)?
+        .map_err(adapt_infra_error)
+}

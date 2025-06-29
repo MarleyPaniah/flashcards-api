@@ -32,7 +32,6 @@ impl AppError {
             AppError::UserExists(err) => (1004, StatusCode::CONFLICT, err.to_string()),
             AppError::UserDoesNotExist(err) => (1005, StatusCode::NOT_FOUND, err.to_string()),
             AppError::InfrastructureError(infra_error) => match infra_error {
-                // TODO make infra_error implement status_code to avoid repeating it?
                 &InfraError::InternalServerError => (
                     1101,
                     StatusCode::INTERNAL_SERVER_ERROR,
@@ -40,6 +39,11 @@ impl AppError {
                 ),
                 &InfraError::NotFound => (
                     1102,
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    infra_error.to_string(),
+                ),
+                &InfraError::InvalidData(_) => (
+                    1103,
                     StatusCode::INTERNAL_SERVER_ERROR,
                     infra_error.to_string(),
                 ),
@@ -80,5 +84,14 @@ impl IntoResponse for AppError {
             }),
         )
             .into_response()
+    }
+}
+
+// Implement conversion from an InfraError into an AppError
+impl From<InfraError> for AppError {
+    fn from(err: InfraError) -> Self {
+        match err {
+            _ => AppError::InfrastructureError(err),
+        }
     }
 }

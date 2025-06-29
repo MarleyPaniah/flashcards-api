@@ -1,32 +1,34 @@
-use dotenvy::dotenv;
-use flashcards_api::api::v1::{
-    api::{routers::api_router, state::AppState},
-    infra::database::get_postgresql_connection_pool,
+use flashcards_api::{
+    api::v1::{
+        api::{routers::api_router, state::AppState},
+        infra::database::get_postgresql_connection_pool,
+    },
+    config,
 };
-use std::env;
+use std::{env, sync::Arc};
 use tracing::info;
 use tracing_subscriber;
 
 #[tokio::main]
 async fn main() {
-    // Load env vars at run time
-    dotenv().ok();
-    let db_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set.");
-    let host = env::var("HOST").expect("HOST must be set.");
-    let port = env::var("PORT").expect("PORT must be set.");
-
     // Initialize tracing
     tracing_subscriber::fmt::init();
 
+    // Load static config
+    let config = Arc::new(config::load_config());
+
     // Create connection pool to the PostgreSQL database
-    let pool = get_postgresql_connection_pool(&db_url);
+    let pool = get_postgresql_connection_pool(&config.database_url);
 
     // Create an instance of the application state
-    let state = AppState { pool };
+    let state = AppState {
+        config: config.clone(),
+        pool,
+    };
 
     // Build the app router
     let app = api_router().with_state(state);
-    let server_address = format!("{}:{}", host, port);
+    let server_address = format!("{}:{}", &config.host, &config.port);
 
     let listener = tokio::net::TcpListener::bind(&server_address)
         .await
