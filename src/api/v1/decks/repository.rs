@@ -5,8 +5,9 @@ use uuid::Uuid;
 
 use crate::{
     api::v1::{
+        api::errors::infrastructure::InfrastructureError,
         decks::models::db::{DeckSummary, DeckWithCreator},
-        infra::{database::database_interact, errors::InfraError},
+        infra::database::database_interact,
     },
     schema::{
         cards,
@@ -24,7 +25,7 @@ impl DeckRepository {
     pub async fn insert_new_deck(
         pool: &Pool,
         new_deck: InsertDeck,
-    ) -> Result<DeckSummary, InfraError> {
+    ) -> Result<DeckSummary, InfrastructureError> {
         let deck_summary = database_interact(pool, |conn| {
             // Insert deck
             let inserted_deck = diesel::insert_into(decks::table)
@@ -51,7 +52,7 @@ impl DeckRepository {
     pub async fn get_deck_summary_by_id(
         pool: &Pool,
         deck_id: Uuid,
-    ) -> Result<DeckSummary, InfraError> {
+    ) -> Result<DeckSummary, InfrastructureError> {
         let deck_summary = database_interact(pool, move |conn| {
             let deck_with_creator = Self::sq_get_deck_with_creator_by_id(conn, deck_id)?;
             let card_count = Self::sq_get_deck_card_count(conn, deck_with_creator.id)?;
@@ -70,7 +71,7 @@ impl DeckRepository {
     pub async fn get_deck_summary_by_sid(
         pool: &Pool,
         deck_sid: String,
-    ) -> Result<DeckSummary, InfraError> {
+    ) -> Result<DeckSummary, InfrastructureError> {
         let deck_summary = database_interact(pool, |conn| {
             let deck_with_creator = Self::sq_get_deck_with_creator_by_sid(conn, deck_sid)?;
             let card_count = Self::sq_get_deck_card_count(conn, deck_with_creator.id)?;

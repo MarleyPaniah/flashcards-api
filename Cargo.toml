@@ -21,3 +21,4 @@ password-worker = "0.4.0"
 serde_json = "1.0.140"
 reqwest = { version = "0.12.20", features = ["json"] }
 envy = "0.4.2"
+thiserror = "2.0.16"

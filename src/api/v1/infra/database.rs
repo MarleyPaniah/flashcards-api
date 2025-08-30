@@ -1,8 +1,9 @@
 use deadpool_diesel::postgres::{Manager, Pool};
 use diesel::{result::Error as DieselError, PgConnection};
 
+use crate::api::v1::api::errors::infrastructure::InfrastructureError;
+
 use super::error_utils::adapt_infra_error;
-use super::errors::InfraError;
 
 pub fn get_postgresql_connection_pool(database_url: &String) -> Pool {
     let manager = Manager::new(database_url, deadpool_diesel::Runtime::Tokio1);
@@ -13,7 +14,7 @@ pub fn get_postgresql_connection_pool(database_url: &String) -> Pool {
 ///
 /// Wrapper and helper function which reduces boilerplate
 /// to interact with the deadpool_diesel pool.
-pub async fn database_interact<T, F>(pool: &Pool, operation: F) -> Result<T, InfraError>
+pub async fn database_interact<T, F>(pool: &Pool, operation: F) -> Result<T, InfrastructureError>
 where
     F: FnOnce(&mut PgConnection) -> Result<T, DieselError> + Send + 'static,
     T: Send + 'static,

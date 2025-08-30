@@ -61,3 +61,31 @@ https://medium.com/@qkpiot/building-a-robust-rust-backend-with-axum-diesel-postg
 - Created models, service and repository
 - fetch sid from service now works
 - Can now create a deck
+
+# 2025-07-21 - Shortid
+- Added default values for config, making a default .env useless
+- made the Dockerfile for the short_id_gen_api project then added it as part of the docker compose
+- started revamping error handling system to make it easier to handle
+
+# 2025-08-03 - error revamped
+- revamped the system for error management
+
+# 2025-08-05 - cont'd
+
+# 2025-08-17 - cont'd
+- finished writing ReturnableError.
+- started to right more specific implementations of ResourceManagementError for UserError
+
+# 2025-08-21 - cont'd
+- finished implementing new error system for UserError
+- start implementing it in the users/ folder
+    - done
+- start implementing it in the decks/ folder + create DeckError
+
+# 2025-08-22 - cont'd
+- continue
+- also separating domain errors from app's (i.e. service.rs don't return AppError but specific domain errors. handlers.rs handle the conversion to AppError)
+
+# 2025-08-29 - cont'd
+- error management implemented for decks
+- error management implemented for users

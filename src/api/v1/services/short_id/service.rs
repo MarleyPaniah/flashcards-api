@@ -1,5 +1,5 @@
 use crate::api::v1::{
-    api::state::AppState, services::short_id::error::ShortIdGeneratorServiceError,
+    api::errors::services::short_id::ShortIdGeneratorServiceError, api::state::AppState,
 };
 
 use super::dto::ShortIdDto;
@@ -11,8 +11,8 @@ impl ShortIdGeneratorService {
         let client = reqwest::Client::new();
         let request_url = format!(
             "http://{host}:{port}/generate",
-            host = &state.config.sid_gen_host,
-            port = &state.config.sid_gen_port,
+            host = &state.config.short_id_gen_host,
+            port = &state.config.short_id_gen_port,
         );
         let res = client
             .get(request_url)

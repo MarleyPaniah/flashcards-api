@@ -4,7 +4,7 @@ use axum::{
 };
 
 use crate::api::v1::{
-    api::{errors::AppError, state::AppState, wrappers::AppJson},
+    api::{errors::app::AppError, state::AppState, wrappers::AppJsonResponse},
     decks::service::DeckService,
 };
 
@@ -14,15 +14,15 @@ use super::models::responses::DeckResponseDto;
 pub async fn create_deck(
     state: State<AppState>,
     Json(payload): Json<NewDeckRequestDto>,
-) -> Result<AppJson<DeckResponseDto>, AppError> {
+) -> Result<AppJsonResponse<DeckResponseDto>, AppError> {
     let deck = DeckService::create_deck(&state, payload).await?;
-    return Ok(AppJson(deck));
+    return Ok(AppJsonResponse(deck));
 }
 
 pub async fn get_summary_by_sid(
     State(state): State<AppState>,
     Path(deck_sid): Path<String>,
-) -> Result<AppJson<DeckResponseDto>, AppError> {
+) -> Result<AppJsonResponse<DeckResponseDto>, AppError> {
     let deck_summary = DeckService::get_summary_by_sid(&state, deck_sid).await?;
-    Ok(AppJson(deck_summary))
+    Ok(AppJsonResponse(deck_summary))
 }

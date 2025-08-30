@@ -1,5 +1,4 @@
 pub mod handlers;
-mod impls;
 pub mod models;
 pub mod repository;
 pub mod routers;

@@ -1,4 +1,3 @@
-pub mod error_utils;
 pub mod errors;
 pub mod handlers;
 pub mod models;
