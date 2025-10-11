@@ -5,8 +5,9 @@ use uuid::Uuid;
 
 use crate::{
     api::v1::{
+        api::errors::infrastructure::InfrastructureError,
         decks::models::db::{DeckSummary, DeckWithCreator},
-        infra::{database::database_interact, errors::InfraError},
+        infra::database::database_interact,
     },
     schema::{
         cards,
@@ -20,11 +21,16 @@ use super::models::db::{Deck, InsertDeck};
 pub struct DeckRepository;
 
 impl DeckRepository {
+    /// Get deck ID by its short ID. Raise an error if not found.
+    pub async fn get_id_by_sid(pool: &Pool, deck_sid: String) -> Result<Uuid, InfrastructureError> {
+        database_interact(pool, |conn| Self::sq_get_id_by_sid(conn, deck_sid)).await
+    }
+
     /// Insert a new deck into the database.
     pub async fn insert_new_deck(
         pool: &Pool,
         new_deck: InsertDeck,
-    ) -> Result<DeckSummary, InfraError> {
+    ) -> Result<DeckSummary, InfrastructureError> {
         let deck_summary = database_interact(pool, |conn| {
             // Insert deck
             let inserted_deck = diesel::insert_into(decks::table)
@@ -32,7 +38,7 @@ impl DeckRepository {
                 .returning(Deck::as_select())
                 .get_result::<Deck>(conn)?;
 
-            let deck_with_creator = Self::sq_get_deck_with_creator_by_id(conn, inserted_deck.id)?;
+            let deck_with_creator = Self::sq_get_deck_with_creator(conn, inserted_deck.id)?;
             let card_count = Self::sq_get_deck_card_count(conn, inserted_deck.id)?;
 
             Ok(Self::convert_deck_with_creator_to_summary(
@@ -47,32 +53,14 @@ impl DeckRepository {
         Ok(deck_summary)
     }
 
-    /// Get a deck summary by its id.
-    pub async fn get_deck_summary_by_id(
-        pool: &Pool,
-        deck_id: Uuid,
-    ) -> Result<DeckSummary, InfraError> {
-        let deck_summary = database_interact(pool, move |conn| {
-            let deck_with_creator = Self::sq_get_deck_with_creator_by_id(conn, deck_id)?;
-            let card_count = Self::sq_get_deck_card_count(conn, deck_with_creator.id)?;
-
-            Ok(Self::convert_deck_with_creator_to_summary(
-                deck_with_creator,
-                card_count,
-            ))
-        })
-        .await?;
-
-        Ok(deck_summary)
-    }
-
     /// Get a deck by its short id.
-    pub async fn get_deck_summary_by_sid(
+    pub async fn get_deck_summary(
         pool: &Pool,
         deck_sid: String,
-    ) -> Result<DeckSummary, InfraError> {
+    ) -> Result<DeckSummary, InfrastructureError> {
         let deck_summary = database_interact(pool, |conn| {
-            let deck_with_creator = Self::sq_get_deck_with_creator_by_sid(conn, deck_sid)?;
+            let deck_id = Self::sq_get_id_by_sid(conn, deck_sid)?;
+            let deck_with_creator = Self::sq_get_deck_with_creator(conn, deck_id)?;
             let card_count = Self::sq_get_deck_card_count(conn, deck_with_creator.id)?;
 
             Ok(Self::convert_deck_with_creator_to_summary(
@@ -84,9 +72,23 @@ impl DeckRepository {
 
         Ok(deck_summary)
     }
+}
 
-    /// (Synchronous sub query)
-    pub fn sq_get_deck_with_creator_by_id(
+/// Subqueries (synchronous)
+impl DeckRepository {
+    pub fn sq_get_id_by_sid(
+        conn: &mut PgConnection,
+        deck_sid: String,
+    ) -> Result<Uuid, DieselError> {
+        let id = decks::table
+            .filter(decks::short_id.eq(deck_sid))
+            .select(decks::id)
+            .first::<Uuid>(conn)?;
+
+        Ok(id)
+    }
+
+    pub fn sq_get_deck_with_creator(
         conn: &mut PgConnection,
         deck_id: Uuid,
     ) -> Result<DeckWithCreator, DieselError> {
@@ -109,32 +111,6 @@ impl DeckRepository {
         Ok(deck_with_creator)
     }
 
-    /// (Synchronous sub query)
-    pub fn sq_get_deck_with_creator_by_sid(
-        conn: &mut PgConnection,
-        deck_sid: String,
-    ) -> Result<DeckWithCreator, DieselError> {
-        let deck_with_creator = decks::table
-            .inner_join(users::table.on(decks::created_by.eq(users::id)))
-            .filter(decks::short_id.eq(deck_sid))
-            .filter(decks::is_deleted.eq(false))
-            .select((
-                decks::id,
-                decks::short_id,
-                decks::title,
-                decks::metadata,
-                decks::is_public,
-                users::id,
-                users::username,
-                decks::created_at,
-                decks::updated_at,
-            ))
-            .first::<DeckWithCreator>(conn)?;
-        Ok(deck_with_creator)
-    }
-
-    /// (Synchronous sub query)
-    /// Return the number of cards for a deck given its id.
     pub fn sq_get_deck_card_count(
         conn: &mut PgConnection,
         deck_id: Uuid,

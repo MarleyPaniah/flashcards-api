@@ -1,18 +1,18 @@
 use axum::extract::FromRequest;
 use axum::response::{IntoResponse, Response};
 
-use super::errors::AppError;
+use super::errors::app::AppError;
 
-// Create our own JSON extractor by wrapping `axum::Json`.
-// This makes it easy to override the rejection
-// and provide our own which formats errors to match our application.
-//
-// `axum::Json` responds with plain text if the input is invalid.
+/*
+   As `axum::Json` responds with plain text if the input is invalid,
+   we customize the JSON extractor (`axum::Json`) to return an
+   enum from AppError, making the app more cohesive.
+*/
 #[derive(FromRequest)]
 #[from_request(via(axum::Json), rejection(AppError))]
-pub struct AppJson<T>(pub T);
+pub struct AppJsonResponse<T>(pub T);
 
-impl<T> IntoResponse for AppJson<T>
+impl<T> IntoResponse for AppJsonResponse<T>
 where
     axum::Json<T>: IntoResponse,
 {

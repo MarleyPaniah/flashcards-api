@@ -3,7 +3,7 @@ use diesel::prelude::{Identifiable, Insertable, Queryable, Selectable};
 use serde::Deserialize;
 use uuid::Uuid;
 
-use crate::schema::{cards, decks};
+use crate::schema::decks;
 
 #[derive(Debug, Clone, Queryable, Selectable, Identifiable)]
 #[diesel(table_name = decks)]
@@ -56,33 +56,4 @@ pub struct DeckSummary {
     pub created_by_name: String,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
-}
-
-#[derive(Queryable, Selectable)]
-#[diesel(table_name = cards)]
-pub struct Card {
-    pub id: Uuid,
-    pub deck_id: Uuid,
-    pub title: String,
-    pub position: i32,
-    pub content_front: String,
-    pub content_back: String,
-    pub difficulty: i32,
-    pub metadata: serde_json::Value,
-    pub is_deleted: bool,
-    pub created_by: Uuid,
-    pub updated_by: Uuid,
-    pub deleted_by: Option<Uuid>,
-    pub created_at: NaiveDateTime,
-    pub updated_at: NaiveDateTime,
-    pub deleted_at: Option<NaiveDateTime>,
-}
-#[derive(Deserialize, Insertable)]
-#[diesel(table_name = cards)]
-pub struct NewCard {
-    pub position: i32,
-    pub content_front: String,
-    pub content_back: String,
-    pub difficulty: i32,
-    pub metadata: serde_json::Value,
 }
