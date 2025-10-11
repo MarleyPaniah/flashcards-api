@@ -25,3 +25,12 @@ where
         .map_err(adapt_infra_error)?
         .map_err(adapt_infra_error)
 }
+
+#[macro_export]
+macro_rules! database_async {
+    ($pool:expr, $fn:path, $( $arg:expr ),*) => {
+        crate::infra::database::database_interact($pool, move |conn| {
+            $fn(conn, $( $arg ),*)
+        }).await
+    };
+}

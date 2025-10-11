@@ -1,4 +1,5 @@
 use tracing::trace;
+use uuid::Uuid;
 
 use crate::api::v1::{
     api::{
@@ -21,7 +22,16 @@ use crate::api::v1::{
 pub struct DeckService {}
 
 impl DeckService {
-    pub async fn create_deck(
+    pub async fn get_id_by_sid(
+        state: &AppState,
+        deck_sid: String,
+    ) -> Result<Uuid, DynReturnableError> {
+        DeckRepository::get_id_by_sid(&state.pool, deck_sid.clone())
+            .await
+            .map_err(|err| Self::adapt_infra_error_deck_info(err, deck_sid))
+    }
+
+    pub async fn create(
         state: &AppState,
         dto: NewDeckRequestDto,
     ) -> Result<DeckResponseDto, AppError> {
@@ -48,11 +58,11 @@ impl DeckService {
         return Ok(deck_summary.into());
     }
 
-    pub async fn get_summary_by_sid(
+    pub async fn get_summary(
         state: &AppState,
         deck_sid: String,
     ) -> Result<DeckResponseDto, DynReturnableError> {
-        let deck_summary = DeckRepository::get_deck_summary_by_sid(&state.pool, deck_sid.clone())
+        let deck_summary = DeckRepository::get_deck_summary(&state.pool, deck_sid.clone())
             .await
             .map_err(|err| Self::adapt_infra_error_deck_info(err, deck_sid))?;
 
@@ -74,7 +84,7 @@ impl DeckService {
         title_or_sid: String,
     ) -> DynReturnableError {
         match err {
-            InfrastructureError::NotFound => DeckError::DeckDoesNotExists(title_or_sid).boxed(),
+            InfrastructureError::NotFound => DeckError::DeckDoesNotExist(title_or_sid).boxed(),
             _ => BasicError::UnknownError(
                 "Error while fetching deck by title or short ID".to_string(),
             )

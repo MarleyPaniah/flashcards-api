@@ -89,3 +89,9 @@ https://medium.com/@qkpiot/building-a-robust-rust-backend-with-axum-diesel-postg
 # 2025-08-29 - cont'd
 - error management implemented for decks
 - error management implemented for users
+
+# 2025-08-31
+- added card domain for adding and removing cards from a deck
+
+# 2025-10-11
+- card management: can create cards and update cards to a deck

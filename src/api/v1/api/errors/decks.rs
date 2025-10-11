@@ -8,7 +8,7 @@ use crate::api::v1::api::errors::{
 
 #[derive(Debug)]
 pub enum DeckError {
-    DeckDoesNotExists(String),
+    DeckDoesNotExist(String),
     DeckCreation(String),
 }
 
@@ -23,7 +23,7 @@ impl ReturnableError for DeckError {
 
     fn specs(&self) -> ErrorSpecs {
         match self {
-            DeckError::DeckDoesNotExists(deck) => {
+            DeckError::DeckDoesNotExist(deck) => {
                 ResourceManagementError::ResourceDoesNotExist(format!("deck '{deck}'")).specs()
             }
             DeckError::DeckCreation(deck) => {

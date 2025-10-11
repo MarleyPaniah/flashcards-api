@@ -15,7 +15,7 @@ pub async fn create_deck(
     state: State<AppState>,
     Json(payload): Json<NewDeckRequestDto>,
 ) -> Result<AppJsonResponse<DeckResponseDto>, AppError> {
-    let deck = DeckService::create_deck(&state, payload).await?;
+    let deck = DeckService::create(&state, payload).await?;
     return Ok(AppJsonResponse(deck));
 }
 
@@ -23,6 +23,6 @@ pub async fn get_summary_by_sid(
     State(state): State<AppState>,
     Path(deck_sid): Path<String>,
 ) -> Result<AppJsonResponse<DeckResponseDto>, AppError> {
-    let deck_summary = DeckService::get_summary_by_sid(&state, deck_sid).await?;
+    let deck_summary = DeckService::get_summary(&state, deck_sid).await?;
     Ok(AppJsonResponse(deck_summary))
 }

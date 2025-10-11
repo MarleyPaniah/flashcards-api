@@ -15,3 +15,6 @@ pub const USER_ERROR_TYPE: &'static str = "UserError";
 
 pub const DECK_ERROR_CODE: u32 = 1700;
 pub const DECK_ERROR_TYPE: &'static str = "DeckError";
+
+pub const CARD_ERROR_CODE: u32 = 1800;
+pub const CARD_ERROR_TYPE: &'static str = "CardError";
